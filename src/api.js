@@ -1,15 +1,9 @@
 const express = require('express');
 const serverless = require('serverless-http')
-const http = require('http');
 const app = express();
-const server = http.createServer(app);
-const Socketio = require('socket.io')
-
-
+const cors = require('cors')
 const Controller = require('./Controller')
-
-
-
+app.use(cors());
 const router = express.Router();
 // get all agents
 router.get("/", async (req, res) => {
@@ -92,24 +86,6 @@ router.get("/", async (req, res) => {
     res.end();
   });
 
-
-const io = Socketio(server)
-  //chats socket io
-
-let users = []
-io.on('connection', (socket)=>{
-  console.log("A user connected...")
-socket.on('active', id=>{
-  users[id] = socket.id;
-}) 
-
-  socket.on('sendMessage', (objMessage)=>{
-    const {to} = objMessage;
-     io.to(users[to]).emit("sendMessage",  objMessage)
-
-  })
-})
-
-app.use(  '/.netlify/functions/api', router)
+app.use( '/.netlify/functions/api', router)
 
 module.exports.handler = serverless(app);
